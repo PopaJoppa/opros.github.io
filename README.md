@@ -1,2 +1,757 @@
 # PopaJoppa.github.io
-сайт опросник для определения уровня финансовой грамотности
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест уровня знаний | Школьный опросник</title>
+    <meta name="description" content="Бесплатный тест для определения уровня знаний школьников по основным предметам">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --danger: #e63946;
+            --warning: #fca311;
+            --border-radius: 10px;
+            --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            padding: 30px;
+        }
+        
+        .step {
+            display: none;
+        }
+        
+        .step.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h2 {
+            color: var(--dark);
+            margin-bottom: 25px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+        
+        .question {
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 1px solid #eaeaea;
+            border-radius: 10px;
+            background: #fafafa;
+        }
+        
+        .question-text {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+        
+        .option:hover {
+            border-color: var(--primary);
+            background: #f8f9ff;
+        }
+        
+        .option.selected {
+            background: #e8f0fe;
+            border-color: var(--primary);
+        }
+        
+        .option input {
+            margin-right: 12px;
+            width: auto;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            gap: 15px;
+        }
+        
+        .btn-next {
+            margin-left: auto;
+        }
+        
+        .btn-prev {
+            background: #6c757d;
+        }
+        
+        .btn-prev:hover {
+            background: #5a6268;
+        }
+        
+        .progress-container {
+            margin-bottom: 30px;
+        }
+        
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .result-card {
+            text-align: center;
+            padding: 40px 30px;
+        }
+        
+        .level {
+            font-size: 2.2rem;
+            margin: 20px 0;
+            color: var(--primary);
+            font-weight: 700;
+        }
+        
+        .score {
+            font-size: 1.5rem;
+            margin: 15px 0;
+            color: var(--success);
+        }
+        
+        .description {
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+        
+        .recommendations {
+            text-align: left;
+            margin-top: 30px;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .recommendations h3 {
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        
+        .recommendations ul {
+            padding-left: 20px;
+        }
+        
+        .recommendations li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        .restart-btn {
+            margin-top: 25px;
+            background: var(--success);
+        }
+        
+        .restart-btn:hover {
+            background: #3aa8d5;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #6c757d;
+            font-size: 0.9rem;
+            border-top: 1px solid #eaeaea;
+        }
+        
+        .info-box {
+            background: #e8f4ff;
+            border: 1px solid #b8daff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .subject-icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 20px 15px;
+            }
+            
+            .btn-container {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Школьный тест знаний</h1>
+            <p class="subtitle">Определите свой уровень по основным предметам и получите персональные рекомендации</p>
+        </header>
+        
+        <div class="card">
+            <div class="progress-container">
+                <div class="progress-text">
+                    <span>Прогресс</span>
+                    <span id="progress-percent">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress" id="progress"></div>
+                </div>
+            </div>
+            
+            <div class="step active" id="step1">
+                <div class="info-box">
+                    <p>📚 Этот тест поможет определить ваш текущий уровень знаний по основным школьным предметам. Ответьте честно на все вопросы для получения точного результата.</p>
+                </div>
+                
+                <h2>Информация об ученике</h2>
+                <div class="form-group">
+                    <label for="name">Имя:</label>
+                    <input type="text" id="name" placeholder="Введите ваше имя">
+                </div>
+                <div class="form-group">
+                    <label for="grade">Класс:</label>
+                    <select id="grade">
+                        <option value="">Выберите класс</option>
+                        <option value="5">5 класс</option>
+                        <option value="6">6 класс</option>
+                        <option value="7">7 класс</option>
+                        <option value="8">8 класс</option>
+                        <option value="9">9 класс</option>
+                        <option value="10">10 класс</option>
+                        <option value="11">11 класс</option>
+                    </select>
+                </div>
+                <div class="btn-container">
+                    <button class="btn btn-next" id="start-btn">Начать тест</button>
+                </div>
+            </div>
+            
+            <div class="step" id="step2">
+                <h2><span class="subject-icon">➗</span> Математика</h2>
+                
+                <div class="question">
+                    <div class="question-text">1. Решите уравнение: 2x + 5 = 15</div>
+                    <div class="options">
+                        <label class="option">
+                            <input type="radio" name="math1" value="a"> x = 5
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="math1" value="b"> x = 10
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="math1" value="c"> x = 7.5
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="math1" value="d"> x = 20
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="question">
+                    <div class="question-text">2. Найдите площадь прямоугольника со сторонами 8 см и 5 см</div>
+                    <div class="options">
+                        <label class="option">
+                            <input type="radio" name="math2" value="a"> 13 см²
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="math2" value="b"> 40 см²
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="math2" value="c"> 26 см²
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="math2" value="d"> 45 см²
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <button class="btn btn-prev" id="prev-btn-2">Назад</button>
+                    <button class="btn btn-next" id="next-btn-2">Далее</button>
+                </div>
+            </div>
+            
+            <div class="step" id="step3">
+                <h2><span class="subject-icon">📖</span> Русский язык</h2>
+                
+                <div class="question">
+                    <div class="question-text">3. В каком слове пишется буква "и" после "ц"?</div>
+                    <div class="options">
+                        <label class="option">
+                            <input type="radio" name="russian1" value="a"> ц...рк
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="russian1" value="b"> ц...фра
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="russian1" value="c"> ц...ган
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="russian1" value="d"> ц...пленок
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="question">
+                    <div class="question-text">4. Укажите предложение с грамматической ошибкой</div>
+                    <div class="options">
+                        <label class="option">
+                            <input type="radio" name="russian2" value="a"> Обе подруги выглядели уставшими.
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="russian2" value="b"> Пять студентов сдали экзамен досрочно.
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="russian2" value="c"> Трое девушек вышли на сцену.
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="russian2" value="d"> Обоих сестер пригласили на праздник.
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <button class="btn btn-prev" id="prev-btn-3">Назад</button>
+                    <button class="btn btn-next" id="next-btn-3">Далее</button>
+                </div>
+            </div>
+            
+            <div class="step" id="step4">
+                <h2><span class="subject-icon">🔤</span> Английский язык</h2>
+                
+                <div class="question">
+                    <div class="question-text">5. Choose the correct form: She _____ to school every day.</div>
+                    <div class="options">
+                        <label class="option">
+                            <input type="radio" name="english1" value="a"> go
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="english1" value="b"> goes
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="english1" value="c"> is going
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="english1" value="d"> went
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="question">
+                    <div class="question-text">6. Which word is the opposite of "expensive"?</div>
+                    <div class="options">
+                        <label class="option">
+                            <input type="radio" name="english2" value="a"> cheap
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="english2" value="b"> valuable
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="english2" value="c"> costly
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="english2" value="d"> pricey
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <button class="btn btn-prev" id="prev-btn-4">Назад</button>
+                    <button class="btn btn-next" id="next-btn-4">Завершить тест</button>
+                </div>
+            </div>
+            
+            <div class="step" id="step5">
+                <div class="result-card">
+                    <h2>Результаты тестирования</h2>
+                    <p id="student-info"></p>
+                    <div class="score" id="score-result"></div>
+                    <div class="level" id="level-result"></div>
+                    <div class="description" id="level-description"></div>
+                    
+                    <div class="recommendations">
+                        <h3>Рекомендации для улучшения:</h3>
+                        <ul id="recommendations-list"></ul>
+                    </div>
+                    
+                    <button class="btn restart-btn" id="restart-btn">Пройти тест заново</button>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2023 Школьный тест знаний. Бесплатный онлайн-опросник для учащихся.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Правильные ответы
+        const correctAnswers = {
+            math1: 'a',
+            math2: 'b',
+            russian1: 'c',
+            russian2: 'd',
+            english1: 'b',
+            english2: 'a'
+        };
+        
+        // Описания уровней
+        const levelDescriptions = {
+            beginner: {
+                name: "Начальный уровень",
+                description: "Вам нужно больше практики по основным темам. Рекомендуем обратить внимание на базовые понятия и регулярно заниматься.",
+                recommendations: [
+                    "Регулярно повторяйте пройденный материал",
+                    "Выполняйте дополнительные упражнения из учебника",
+                    "Обратитесь к учителю для индивидуальной консультации",
+                    "Используйте онлайн-ресурсы для самостоятельного изучения",
+                    "Составьте план занятий и следуйте ему"
+                ]
+            },
+            intermediate: {
+                name: "Средний уровень",
+                description: "У вас хорошие базовые знания, но есть области, которые требуют улучшения. Продолжайте развиваться!",
+                recommendations: [
+                    "Сосредоточьтесь на темах, где допустили ошибки",
+                    "Практикуйтесь в решении более сложных задач",
+                    "Читайте дополнительную литературу по предмету",
+                    "Участвуйте в школьных олимпиадах и конкурсах",
+                    "Обсуждайте сложные темы с учителем и одноклассниками"
+                ]
+            },
+            advanced: {
+                name: "Продвинутый уровень",
+                description: "Поздравляем! У вас отличные знания по основным предметам. Продолжайте углублять свои знания.",
+                recommendations: [
+                    "Продолжайте углублять знания в интересующих областях",
+                    "Участвуйте в научных проектах и исследованиях",
+                    "Помогайте одноклассникам в учебе",
+                    "Рассмотрите возможность участия в профильных олимпиадах",
+                    "Изучайте дополнительные материалы за пределами школьной программы"
+                ]
+            }
+        };
+        
+        let currentStep = 1;
+        const totalSteps = 5;
+        
+        // Функция обновления прогресс-бара
+        function updateProgress() {
+            const progress = document.getElementById('progress');
+            const progressPercent = document.getElementById('progress-percent');
+            const percentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
+            progress.style.width = percentage + '%';
+            progressPercent.textContent = Math.round(percentage) + '%';
+        }
+        
+        // Функция перехода к следующему шагу
+        function nextStep() {
+            // Проверка заполнения текущего шага
+            if (currentStep === 1) {
+                const name = document.getElementById('name').value;
+                const grade = document.getElementById('grade').value;
+                
+                if (!name || !grade) {
+                    alert('Пожалуйста, заполните все поля');
+                    return;
+                }
+            } else {
+                // Проверка ответов на вопросы текущего шага
+                let allAnswered = true;
+                const questions = document.querySelectorAll(`#step${currentStep} input[type="radio"]`);
+                const questionGroups = {};
+                
+                questions.forEach(q => {
+                    const name = q.getAttribute('name');
+                    if (!questionGroups[name]) questionGroups[name] = [];
+                    questionGroups[name].push(q);
+                });
+                
+                for (const group in questionGroups) {
+                    let answered = false;
+                    questionGroups[group].forEach(q => {
+                        if (q.checked) answered = true;
+                    });
+                    if (!answered) allAnswered = false;
+                }
+                
+                if (!allAnswered) {
+                    alert('Пожалуйста, ответьте на все вопросы перед переходом к следующему шагу');
+                    return;
+                }
+            }
+            
+            // Переход к следующему шагу
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            currentStep++;
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            updateProgress();
+            
+            // Если это последний шаг, показать результаты
+            if (currentStep === totalSteps) {
+                showResults();
+            }
+        }
+        
+        // Функция перехода к предыдущему шагу
+        function prevStep() {
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            currentStep--;
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            updateProgress();
+        }
+        
+        // Функция показа результатов
+        function showResults() {
+            // Сбор информации об ученике
+            const name = document.getElementById('name').value;
+            const grade = document.getElementById('grade').value;
+            document.getElementById('student-info').textContent = `${name}, ${grade} класс`;
+            
+            // Подсчет правильных ответов
+            let score = 0;
+            const totalQuestions = Object.keys(correctAnswers).length;
+            
+            for (const question in correctAnswers) {
+                const selected = document.querySelector(`input[name="${question}"]:checked`);
+                if (selected && selected.value === correctAnswers[question]) {
+                    score++;
+                }
+            }
+            
+            // Определение уровня
+            let level;
+            if (score <= 2) {
+                level = 'beginner';
+            } else if (score <= 4) {
+                level = 'intermediate';
+            } else {
+                level = 'advanced';
+            }
+            
+            // Отображение результатов
+            document.getElementById('score-result').textContent = `Правильных ответов: ${score} из ${totalQuestions}`;
+            document.getElementById('level-result').textContent = levelDescriptions[level].name;
+            document.getElementById('level-description').textContent = levelDescriptions[level].description;
+            
+            const recommendationsList = document.getElementById('recommendations-list');
+            recommendationsList.innerHTML = '';
+            levelDescriptions[level].recommendations.forEach(rec => {
+                const li = document.createElement('li');
+                li.textContent = rec;
+                recommendationsList.appendChild(li);
+            });
+        }
+        
+        // Функция перезапуска теста
+        function restartTest() {
+            // Сброс формы
+            document.getElementById('name').value = '';
+            document.getElementById('grade').value = '';
+            
+            // Сброс выбранных ответов
+            const allInputs = document.querySelectorAll('input[type="radio"]');
+            allInputs.forEach(input => {
+                input.checked = false;
+                input.parentElement.classList.remove('selected');
+            });
+            
+            // Возврат к первому шагу
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            currentStep = 1;
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            updateProgress();
+            
+            // Прокрутка к верху страницы
+            window.scrollTo(0, 0);
+        }
+        
+        // Инициализация после загрузки DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            // Обработчики для вариантов ответов
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    const radio = this.querySelector('input[type="radio"]');
+                    radio.checked = true;
+                    
+                    // Снимаем выделение со всех вариантов в группе
+                    const groupName = radio.getAttribute('name');
+                    const groupOptions = document.querySelectorAll(`input[name="${groupName}"]`);
+                    groupOptions.forEach(opt => {
+                        opt.parentElement.classList.remove('selected');
+                    });
+                    
+                    // Выделяем выбранный вариант
+                    this.classList.add('selected');
+                });
+            });
+            
+            // Обработчики для кнопок навигации
+            document.getElementById('start-btn').addEventListener('click', nextStep);
+            document.getElementById('next-btn-2').addEventListener('click', nextStep);
+            document.getElementById('next-btn-3').addEventListener('click', nextStep);
+            document.getElementById('next-btn-4').addEventListener('click', nextStep);
+            
+            document.getElementById('prev-btn-2').addEventListener('click', prevStep);
+            document.getElementById('prev-btn-3').addEventListener('click', prevStep);
+            document.getElementById('prev-btn-4').addEventListener('click', prevStep);
+            
+            document.getElementById('restart-btn').addEventListener('click', restartTest);
+            
+            // Инициализация прогресс-бара
+            updateProgress();
+        });
+    </script>
+</body>
+</html>
