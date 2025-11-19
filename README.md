@@ -315,6 +315,76 @@
             margin-right: 10px;
         }
         
+        .results-details {
+            text-align: left;
+            margin-top: 30px;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .results-details h3 {
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        
+        .result-question {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: white;
+            border: 1px solid #eaeaea;
+        }
+        
+        .result-question.correct {
+            border-left: 4px solid var(--success);
+        }
+        
+        .result-question.incorrect {
+            border-left: 4px solid var(--danger);
+        }
+        
+        .result-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .result-status.correct {
+            background: var(--success);
+            color: white;
+        }
+        
+        .result-status.incorrect {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .user-answer {
+            margin: 8px 0;
+            padding: 8px;
+            border-radius: 4px;
+            background: #ffe8e8;
+            border: 1px solid #ffb8b8;
+        }
+        
+        .user-answer.correct {
+            background: #e8f5e8;
+            border: 1px solid #b8e0b8;
+        }
+        
+        .correct-answer {
+            margin: 8px 0;
+            padding: 8px;
+            border-radius: 4px;
+            background: #e8f5e8;
+            border: 1px solid #b8e0b8;
+        }
+        
         @media (max-width: 600px) {
             body {
                 padding: 10px;
@@ -359,7 +429,7 @@
             <div class="step active" id="step1">
                 <div class="info-box">
                     <p>💰 Этот тест поможет оценить твой уровень финансовой грамотности. Сложность вопросов зависит от выбранного класса.</p>
-                    <p><strong>Примечание:</strong> Вопросы меняются при каждом обновлении страницы!</p>
+                    <p><strong>Примечание:</strong> В конце теста ты увидишь, на какие вопросы ответил правильно, а на какие нет.</p>
                 </div>
                 
                 <h2>Информация об ученике</h2>
@@ -427,6 +497,10 @@
                     <div class="score" id="score-result"></div>
                     <div class="level" id="level-result"></div>
                     <div class="description" id="level-description"></div>
+                    
+                    <div class="results-details" id="results-details">
+                        <!-- Детали результатов будут добавлены с помощью JavaScript -->
+                    </div>
                     
                     <div class="recommendations">
                         <h3>Рекомендации для улучшения финансовой грамотности:</h3>
@@ -836,6 +910,7 @@
         
         let correctAnswers = {};
         let currentGrade = '';
+        let userAnswers = {};
 
         // Функция для отображения вопросов на странице
         function renderQuestions() {
@@ -932,6 +1007,130 @@
                     // Выделяем выбранный вариант
                     this.classList.add('selected');
                 });
+            });
+        }
+
+        // Функция для сбора ответов пользователя
+        function collectUserAnswers() {
+            userAnswers = {};
+            
+            // Собираем ответы на вопросы основ финансов
+            selectedQuestions.basics.forEach((q, index) => {
+                const questionId = `basics${index + 1}`;
+                const selected = document.querySelector(`input[name="${questionId}"]:checked`);
+                if (selected) {
+                    userAnswers[questionId] = parseInt(selected.value);
+                }
+            });
+            
+            // Собираем ответы на вопросы банковских продуктов
+            selectedQuestions.banking.forEach((q, index) => {
+                const questionId = `banking${index + 1}`;
+                const selected = document.querySelector(`input[name="${questionId}"]:checked`);
+                if (selected) {
+                    userAnswers[questionId] = parseInt(selected.value);
+                }
+            });
+            
+            // Собираем ответы на вопросы защиты от мошенничества
+            selectedQuestions.fraud.forEach((q, index) => {
+                const questionId = `fraud${index + 1}`;
+                const selected = document.querySelector(`input[name="${questionId}"]:checked`);
+                if (selected) {
+                    userAnswers[questionId] = parseInt(selected.value);
+                }
+            });
+        }
+
+        // Функция для отображения деталей результатов
+        function renderResultsDetails() {
+            const resultsContainer = document.getElementById('results-details');
+            resultsContainer.innerHTML = '<h3>Подробные результаты:</h3>';
+            
+            let questionNumber = 1;
+            
+            // Отображаем результаты по основам финансов
+            selectedQuestions.basics.forEach((q, index) => {
+                const questionId = `basics${index + 1}`;
+                const userAnswer = userAnswers[questionId];
+                const correctAnswer = correctAnswers[questionId];
+                const isCorrect = userAnswer === correctAnswer;
+                
+                const resultHTML = `
+                    <div class="result-question ${isCorrect ? 'correct' : 'incorrect'}">
+                        <div class="result-status ${isCorrect ? 'correct' : 'incorrect'}">
+                            ${isCorrect ? '✓ Правильно' : '✗ Неправильно'}
+                        </div>
+                        <div class="question-text">${questionNumber}. ${q.question}</div>
+                        <div class="user-answer ${isCorrect ? 'correct' : ''}">
+                            <strong>Ваш ответ:</strong> ${userAnswer !== undefined ? q.options[userAnswer] : 'Нет ответа'}
+                        </div>
+                        ${!isCorrect ? `
+                            <div class="correct-answer">
+                                <strong>Правильный ответ:</strong> ${q.options[correctAnswer]}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                resultsContainer.innerHTML += resultHTML;
+                questionNumber++;
+            });
+            
+            // Отображаем результаты по банковским продуктам
+            selectedQuestions.banking.forEach((q, index) => {
+                const questionId = `banking${index + 1}`;
+                const userAnswer = userAnswers[questionId];
+                const correctAnswer = correctAnswers[questionId];
+                const isCorrect = userAnswer === correctAnswer;
+                
+                const resultHTML = `
+                    <div class="result-question ${isCorrect ? 'correct' : 'incorrect'}">
+                        <div class="result-status ${isCorrect ? 'correct' : 'incorrect'}">
+                            ${isCorrect ? '✓ Правильно' : '✗ Неправильно'}
+                        </div>
+                        <div class="question-text">${questionNumber}. ${q.question}</div>
+                        <div class="user-answer ${isCorrect ? 'correct' : ''}">
+                            <strong>Ваш ответ:</strong> ${userAnswer !== undefined ? q.options[userAnswer] : 'Нет ответа'}
+                        </div>
+                        ${!isCorrect ? `
+                            <div class="correct-answer">
+                                <strong>Правильный ответ:</strong> ${q.options[correctAnswer]}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                resultsContainer.innerHTML += resultHTML;
+                questionNumber++;
+            });
+            
+            // Отображаем результаты по защите от мошенничества
+            selectedQuestions.fraud.forEach((q, index) => {
+                const questionId = `fraud${index + 1}`;
+                const userAnswer = userAnswers[questionId];
+                const correctAnswer = correctAnswers[questionId];
+                const isCorrect = userAnswer === correctAnswer;
+                
+                const resultHTML = `
+                    <div class="result-question ${isCorrect ? 'correct' : 'incorrect'}">
+                        <div class="result-status ${isCorrect ? 'correct' : 'incorrect'}">
+                            ${isCorrect ? '✓ Правильно' : '✗ Неправильно'}
+                        </div>
+                        <div class="question-text">${questionNumber}. ${q.question}</div>
+                        <div class="user-answer ${isCorrect ? 'correct' : ''}">
+                            <strong>Ваш ответ:</strong> ${userAnswer !== undefined ? q.options[userAnswer] : 'Нет ответа'}
+                        </div>
+                        ${!isCorrect ? `
+                            <div class="correct-answer">
+                                <strong>Правильный ответ:</strong> ${q.options[correctAnswer]}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                resultsContainer.innerHTML += resultHTML;
+                questionNumber++;
             });
         }
 
@@ -1038,7 +1237,9 @@
             
             // Если это последний шаг, показать результаты
             if (currentStep === totalSteps) {
+                collectUserAnswers();
                 showResults();
+                renderResultsDetails();
             }
         }
         
@@ -1062,8 +1263,7 @@
             const totalQuestions = Object.keys(correctAnswers).length;
             
             for (const question in correctAnswers) {
-                const selected = document.querySelector(`input[name="${question}"]:checked`);
-                if (selected && parseInt(selected.value) === correctAnswers[question]) {
+                if (userAnswers[question] === correctAnswers[question]) {
                     score++;
                 }
             }
